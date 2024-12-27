@@ -412,15 +412,17 @@ async def _install_requirements_from_dir(dir: str) -> None:
                 extras.update({e.strip() for e in match_extras.group(2).split(",")})
 
         if pkg_name not in micropip.list():
-            print(f"Installing {req} ...")
+            req = re.sub(r"#.+$", "", req).strip()
+            print(f"\\nInstalling {req}...", end=" ", flush=True)
             await micropip.install(req)
+            print("done.", flush=True)
 
         if len(extras) == 0:
             continue
         else:
-            # Because micropip.install() doesn't install extras, we have to
-            # find the package requirements of each extra and install them
-            # if they aren't already installed.
+            # Because micropip.install() doesn't install extras if the primary
+            # package was already installed, we have to find the package
+            # requirements of each extra and install them manually if needed.
             dist = importlib.metadata.distribution(pkg_name)
 
             provided_extras = set(dist.metadata.get_all("Provides-Extra") or [])
@@ -446,8 +448,9 @@ async def _install_requirements_from_dir(dir: str) -> None:
                 for extra_req in extra_reqs:
                     extra_req_name = re.sub(r"([a-zA-Z0-9._,-]+)(.*)", r"\\1", extra_req).strip()
                     if extra_req_name not in micropip.list():
-                        print(f"Installing {extra_req_name} for {pkg_name}[{extra}]")
+                        print(f"\\nInstalling {extra_req_name} for {pkg_name}[{extra}]...", end=" ", flush = True)
                         await micropip.install(extra_req_name)
+                        print("done.", flush = True)
 
 
 async def _load_packages_from_dir(dir: str) -> None:
