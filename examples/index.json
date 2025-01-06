@@ -60,6 +60,10 @@
     "engine": "r",
     "examples": [
       {
+        "category": "Editor",
+        "apps": ["editor"]
+      },
+      {
         "category": "R examples",
         "apps": [
           "001-hello",

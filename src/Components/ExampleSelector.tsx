@@ -35,7 +35,11 @@ export function ExampleSelector({
   React.useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     (async () => {
-      setExampleCategories(await getExampleCategories(appEngine));
+      const categories = (await getExampleCategories(appEngine)).filter(
+        // Exclude the "Editor" category from the general examples list
+        (cat) => cat.category !== "Editor",
+      );
+      setExampleCategories(categories);
     })();
   }, [appEngine]);
 

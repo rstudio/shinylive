@@ -729,14 +729,18 @@ export function runApp(
         if (pos) {
           opts.selectedExample = exampleName;
         } else {
-          // If we didn't find an example name from the URL hash, we'll just use
-          // the first available example.
-          pos = { categoryIndex: 0, index: 0 };
-          opts.selectedExample = sanitizeTitleForUrl(
-            exampleCategories[pos.categoryIndex].apps[pos.index].title,
+          // We didn't find an example name from the URL hash. If we have an
+          // example in the "Editor" category, use that, otherwise use the first
+          // available example in the list.
+          const editorCategory = (await getExampleCategories(appEngine)).filter(
+            (cat) => cat.category == "Editor",
           );
+          const categories =
+            editorCategory.length > 0 ? editorCategory : exampleCategories;
+          const { title, files } = categories[0].apps[0];
+          opts.selectedExample = sanitizeTitleForUrl(title);
+          startFiles = files;
         }
-        startFiles = exampleCategories[pos.categoryIndex].apps[pos.index].files;
       }
       // If we get here, we're either not looking for a URL hash that points to
       // code, or we didn't find such a hash.
