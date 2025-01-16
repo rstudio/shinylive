@@ -88,18 +88,19 @@ export function parseCodeBlock(
 
 /**
  *  Loop through all the lines and extract lines at the beginning which start
- *  with Quarto parameter comments and have the format "#| " as `quartoArgs`,
- *  and strip those lines from the result. Also remove up to one empty line
- *  after any args.
+ *  with Quarto parameter comments and have the format "#| ", "# | " or "##|"
+ *  as `quartoArgs`, and strip those lines from the result. Also remove up to
+ *  one empty line after any args.
  */
 export function processQuartoArgs(lines: string[]): {
   lines: string[];
   quartoArgs: QuartoArgs;
 } {
   let i = 0;
+  const rgxQuartoComment = /^(# ?|##)\| /;
   while (i < lines.length) {
     const line = lines[i];
-    if (!line.match(/^#\| /)) {
+    if (!line.match(rgxQuartoComment)) {
       // Remove up to one blank line after finding any args.
       if (line === "") {
         i++;
@@ -114,7 +115,7 @@ export function processQuartoArgs(lines: string[]): {
   // Extract the lines that start with "#| " and remove that comment prefix.
   const argCommentLines = lines
     .slice(0, i)
-    .map((line) => line.replace(/^#\| /, ""));
+    .map((line) => line.replace(rgxQuartoComment, ""));
 
   // Parse the args as YAML.
   const quartoArgs: QuartoArgs = yamlLoad(
